@@ -5,6 +5,7 @@ import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
 import EventCard from "@/components/EventCard";
 import {IEvent} from "@/database/event.model";
+import {cacheLife} from "next/cache";
 
 const EventDetailItem = ({icon, alt, label}:{icon:string, alt:string, label:string}) => (
     <div className='flex-row-gap-2 items-center' >
@@ -34,8 +35,15 @@ const EventTags =({tags}:{tags:string[]}) => (
 
 
 const EventDetailsPage = async ({params}: {params:Promise<{slug:string}>}) => {
+    'use cache'
+    cacheLife('hours')
     const {slug} = await params
+
+
+
     const request = await fetch(`${BASE_URL}/api/events/${slug}`)
+
+
     const {event:{description, image, overview, date, time, location,mode, agenda,audience,tags, organizer}} = await request.json()
 
     if(!description) return notFound();
@@ -91,7 +99,7 @@ const EventDetailsPage = async ({params}: {params:Promise<{slug:string}>}) => {
                             <p className="text-sm">Be the first to book your spot</p>
                         )}
 
-                        <BookEvent />
+                        <BookEvent eventId={event._id} slug={event.slug} />
                     </div>
                 </aside>
             </div>
